@@ -21,7 +21,7 @@ aproximadamente cinco contracciones musculares voluntarias.
 
 b) Adquirir y almacenar la señal generada para su posterior análisis.
 
-Para la adquisición de la señal se hizo uso de visual studio y spyder en donde se utilizó el siguiente codigo:
+Para la adquisición de la señal se hizo uso de visual studio y spyder para la creación del código de captura de la señal EMG del generador de señales biológicas, en donde se diseña un filtro FIR hamming, ya que este es un tipo de filtro muy común para señales biológicas por su buen compromiso entre selectividad y atenuación en banda de rechazo. Para la creación del filtro se siguieron los pasos indicados en teoría hasta llegar al calculo del orden debido a que se decidió hacer uso de la app de matlab filter designer para exportar los coeficientes y de esta manera concluir el diseño del filtro.
 
 ```
 import numpy as np  
