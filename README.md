@@ -68,6 +68,43 @@ with nidaqmx.Task() as task:
 np.savetxt(r"C:\Users\USUARIO\OneDrive\Desktop\datosEMGgeneradordeseñales.csv", data, delimiter=",")
 ```
 
+Posterior a su captura, se guardo en drive en una carpeta la señal capturada para luego graficarla en google colab y poder observar las 5 contracciones voluntarias simuladas.
+
+```
+from google.colab import drive
+drive.mount('/content/drive')
+from google.colab import drive
+import pandas as pd
+import matplotlib.pyplot as plt
+
+drive.mount('/content/drive') 
+
+try:
+  graficacaptura = pd.read_excel("/content/drive/Shareddrives/Labs procesamiento de señales/lab 4/datosEMGgeneradordeseñales.xlsx")
+
+
+  if not graficacaptura.empty:
+    for column in graficacaptura.columns:
+
+        plt.figure(figsize=(15, 4))
+        plt.xlabel("(2000muestras/seg)")
+        plt.ylabel("Amplitud (V)")
+        plt.title("Señal EMG Generada")
+        plt.plot(graficacaptura[column], label=f"Señal {column}")
+        plt.legend()
+        plt.show()
+  else:
+    print("The Excel file is empty or could not be read.")
+
+except FileNotFoundError:
+  print("Error: The file was not found. Please check the file path.")
+except Exception as e:
+  print(f"An error occurred: {e}")
+```
+
+
+<img width="1232" height="393" alt="image" src="https://github.com/user-attachments/assets/2d883117-ca7d-4ee9-ac46-68d44c7a6f5a" />
+
 
 c) Segmentar la señal obtenida en las cinco contracciones simuladas.
 
