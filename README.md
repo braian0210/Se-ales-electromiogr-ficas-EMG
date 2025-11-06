@@ -68,6 +68,7 @@ with nidaqmx.Task() as task:
 np.savetxt(r"C:\Users\USUARIO\OneDrive\Desktop\datosEMGgeneradordeseñales.csv", data, delimiter=",")
 ```
 
+
 c. Segmentar la señal obtenida en las cinco contracciones simuladas.
 
 d. Calcular para cada contracción:
