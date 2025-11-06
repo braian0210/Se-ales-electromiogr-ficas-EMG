@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 
 rate = 2000.0  # Hz
-duration = 5.5  # segundos
+duration = 6  # segundos
 
 samps_per_chan = int(rate * duration)
 corte_alto = 500 #hz
@@ -50,7 +50,7 @@ a = np.array([1])  # porque es un filtro FIR (Hamming)
 
 
 with nidaqmx.Task() as task:
-    task.ai_channels.add_ai_voltage_chan("Dev5/ai0")
+    task.ai_channels.add_ai_voltage_chan("Dev1/ai0")
     task.timing.cfg_samp_clk_timing(rate, sample_mode=AcquisitionType.FINITE, samps_per_chan=samps_per_chan)
     data = task.read(READ_ALL_AVAILABLE)
     #offset = 10
@@ -65,7 +65,7 @@ with nidaqmx.Task() as task:
     plt.show()
 
 
-np.savetxt(r"C:\Users\USUARIO\OneDrive\Desktop\datosEMGgeneradordeseñales.csv", data, delimiter=",")
+np.savetxt(r"C:\Users\USUARIO\OneDrive\Desktop\DATOSPARTEBEMGintentofinal.csv", data_filtrada, delimiter=",")
 ```
 
 Posterior a su captura, se guardo en drive en una carpeta la señal capturada para luego graficarla en google colab y poder observar las 5 contracciones voluntarias simuladas.
