@@ -108,6 +108,16 @@ except Exception as e:
 
 c) Segmentar la señal obtenida en las cinco contracciones simuladas.
 
+Para segementar la señal en las cinco contracciones, se hizo uso de algo similar al funcionamiento del metodo de banderas o flag method, el cual se basa en marcar ciertos eventos o condiciones dentro de una señal o conjunto de datos mediante banderas lógicas, que indican si algo cumple un criterio o no. En este caso como se quiere segmentar las 5 contracciones lo que se hizo fue encender una bandera o marca para todos los valores positivos como se muestra a continuación:
+
+```
+positive_data = data.copy()
+positive_data[positive_data < 0] = 0  # Considerar solo valores positivos
+
+threshold = 0.95 * np.max(positive_data)
+
+```
+
 d) Calcular para cada contracción:
 
  Frecuencia media
@@ -116,6 +126,137 @@ d) Calcular para cada contracción:
 
 e) Presentar los resultados de cada contracción en una tabla y representar
 gráficamente la evolución de las frecuencias.
+
+A continuación se muestra el código completo en donde se evidencia la segmentación de las 5 contracciones simuladas con sus respectivas frecuencias medias y medianas:
+
+```
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from scipy.fft import fft, fftfreq
+
+# Cargar datos
+data = np.loadtxt('/content/drive/Shareddrives/Labs procesamiento de señales/lab 4/datosEMGgeneradordeseñales.csv')
+
+# 🔍 **Paso 1: Identificar picos POSITIVOS solamente**
+# Umbral relativo al máximo positivo (ajustable)
+positive_data = data.copy()
+positive_data[positive_data < 0] = 0  # Considerar solo valores positivos
+
+threshold = 0.95 * np.max(positive_data)
+
+# Encontrar picos solo en la parte positiva
+peaks, properties = find_peaks(positive_data, height=threshold, distance=100)
+
+print(f"Número de picos positivos encontrados: {len(peaks)}")
+print(f"Posiciones de los picos: {peaks}")
+print(f"Alturas de los picos: {properties['peak_heights']}")
+
+# 🎯 **Paso 2: Segmentar cada contracción basada en picos positivos**
+window_size = 200  # Ajustar según la duración típica de una contracción
+segments = []
+
+for peak in peaks:
+    start = max(0, peak - window_size)
+    end = min(len(data), peak + window_size)
+    segments.append(data[start:end])
+
+print(f"Segmentos extraídos: {len(segments)}")
+
+# 📊 **Paso 3: Calcular frecuencia media y mediana por segmento**
+freq_means = []
+freq_medians = []
+sampling_rate = 1000  # Hz (ajustar según tu frecuencia de muestreo real)
+
+for i, segment in enumerate(segments):
+    # FFT
+    N = len(segment)
+    if N == 0:
+        continue
+
+    T = 1 / sampling_rate
+    yf = fft(segment)
+    xf = fftfreq(N, T)[:N//2]
+
+    # Densidad espectral de potencia (PSD)
+    psd = np.abs(yf[:N//2])**2
+
+    # Excluir frecuencia DC (0 Hz) para análisis
+    mask = xf > 0
+    xf_filtered = xf[mask]
+    psd_filtered = psd[mask]
+
+    if len(xf_filtered) == 0 or np.sum(psd_filtered) == 0:
+        freq_means.append(0)
+        freq_medians.append(0)
+        continue
+
+    # Frecuencia media (ponderada por PSD)
+    mean_freq = np.sum(xf_filtered * psd_filtered) / np.sum(psd_filtered)
+
+    # Frecuencia mediana (frecuencia donde la PSD acumulada alcanza la mitad)
+    cumsum_psd = np.cumsum(psd_filtered)
+    median_idx = np.where(cumsum_psd >= cumsum_psd[-1] / 2)[0]
+    if len(median_idx) > 0:
+        median_freq = xf_filtered[median_idx[0]]
+    else:
+        median_freq = 0
+
+    freq_means.append(mean_freq)
+    freq_medians.append(median_freq)
+
+# 📈 **Visualización de la señal segmentada (picos positivos)**
+plt.figure(figsize=(14, 8))
+
+# Señal completa
+plt.subplot(2, 1, 1)
+plt.plot(data, label='Señal EMG completa', alpha=0.7)
+plt.axhline(y=threshold, color='r', linestyle='--', label='Umbral de picos positivos')
+plt.plot(peaks, data[peaks], 'ro', markersize=8, label='Picos positivos detectados')
+plt.xlabel('Muestras')
+plt.ylabel('Amplitud (V)')
+plt.legend()
+plt.title('Detección de picos positivos en señal EMG')
+plt.grid(True)
+
+# Segmentos individuales
+plt.subplot(2, 1, 2)
+for i, segment in enumerate(segments):
+    time_axis = np.arange(len(segment)) / sampling_rate * 1000  # ms
+    plt.plot(time_axis, segment, label=f'Contracción {i+1}')
+plt.xlabel('Tiempo (ms)')
+plt.ylabel('Amplitud (V)')
+plt.legend()
+plt.title('Segmentos de contracción extraídos')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+#**Resultados**
+print("\n" + "="*60)
+print("RESULTADOS DE ANÁLISIS DE FRECUENCIA POR CONTRACCIÓN")
+print("="*60)
+
+for i, (mean_f, median_f) in enumerate(zip(freq_means, freq_medians)):
+    print(f"Contracción {i+1}:")
+    print(f"  • Frecuencia media = {mean_f:.2f} Hz")
+    print(f"  • Frecuencia mediana = {median_f:.2f} Hz")
+    print(f"  • Duración = {len(segments[i])/sampling_rate*1000:.1f} ms")
+    print()
+
+# Estadísticas generales
+print("ESTADÍSTICAS GENERALES:")
+print(f"Frecuencia media promedio: {np.mean(freq_means):.2f} Hz")
+print(f"Frecuencia mediana promedio: {np.mean(freq_medians):.2f} Hz")
+print(f"Desviación estándar frecuencia media: {np.std(freq_means):.2f} Hz")
+
+```
+
+
+<img width="1389" height="790" alt="image" src="https://github.com/user-attachments/assets/78c91e91-9ade-408a-af58-fbe7a87a5dc8" />
+
+
 
 f) Analizar cómo varían estas frecuencias a lo largo de las contracciones
 simuladas. 
