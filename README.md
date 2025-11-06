@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 
 rate = 2000.0  # Hz
-duration = 6  # segundos
+duration = 5.5  # segundos
 
 samps_per_chan = int(rate * duration)
 corte_alto = 500 #hz
