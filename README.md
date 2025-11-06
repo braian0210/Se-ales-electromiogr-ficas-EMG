@@ -138,7 +138,7 @@ from scipy.fft import fft, fftfreq
 # Cargar datos
 data = np.loadtxt('/content/drive/Shareddrives/Labs procesamiento de señales/lab 4/datosEMGgeneradordeseñales.csv')
 
-# 🔍 **Paso 1: Identificar picos POSITIVOS solamente**
+# **Paso 1: Identificar picos POSITIVOS solamente**
 # Umbral relativo al máximo positivo (ajustable)
 positive_data = data.copy()
 positive_data[positive_data < 0] = 0  # Considerar solo valores positivos
@@ -152,7 +152,7 @@ print(f"Número de picos positivos encontrados: {len(peaks)}")
 print(f"Posiciones de los picos: {peaks}")
 print(f"Alturas de los picos: {properties['peak_heights']}")
 
-# 🎯 **Paso 2: Segmentar cada contracción basada en picos positivos**
+# **Paso 2: Segmentar cada contracción basada en picos positivos**
 window_size = 200  # Ajustar según la duración típica de una contracción
 segments = []
 
@@ -163,7 +163,7 @@ for peak in peaks:
 
 print(f"Segmentos extraídos: {len(segments)}")
 
-# 📊 **Paso 3: Calcular frecuencia media y mediana por segmento**
+# **Paso 3: Calcular frecuencia media y mediana por segmento**
 freq_means = []
 freq_medians = []
 sampling_rate = 1000  # Hz (ajustar según tu frecuencia de muestreo real)
@@ -205,7 +205,7 @@ for i, segment in enumerate(segments):
     freq_means.append(mean_freq)
     freq_medians.append(median_freq)
 
-# 📈 **Visualización de la señal segmentada (picos positivos)**
+# **Visualización de la señal segmentada (picos positivos)**
 plt.figure(figsize=(14, 8))
 
 # Señal completa
