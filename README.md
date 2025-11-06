@@ -257,9 +257,48 @@ print(f"Desviación estándar frecuencia media: {np.std(freq_means):.2f} Hz")
 <img width="1389" height="790" alt="image" src="https://github.com/user-attachments/assets/78c91e91-9ade-408a-af58-fbe7a87a5dc8" />
 
 
+```
+============================================================
+RESULTADOS DE ANÁLISIS DE FRECUENCIA POR CONTRACCIÓN
+============================================================
+Contracción 1:
+  • Frecuencia media = 7.75 Hz
+  • Frecuencia mediana = 2.50 Hz
+  • Duración = 400.0 ms
+
+Contracción 2:
+  • Frecuencia media = 7.78 Hz
+  • Frecuencia mediana = 2.50 Hz
+  • Duración = 400.0 ms
+
+Contracción 3:
+  • Frecuencia media = 7.84 Hz
+  • Frecuencia mediana = 2.50 Hz
+  • Duración = 400.0 ms
+
+Contracción 4:
+  • Frecuencia media = 7.85 Hz
+  • Frecuencia mediana = 2.50 Hz
+  • Duración = 400.0 ms
+
+Contracción 5:
+  • Frecuencia media = 7.87 Hz
+  • Frecuencia mediana = 2.50 Hz
+  • Duración = 400.0 ms
+
+ESTADÍSTICAS GENERALES:
+Frecuencia media promedio: 7.82 Hz
+Frecuencia mediana promedio: 2.50 Hz
+Desviación estándar frecuencia media: 0.05 Hz
+```
+
 
 f) Analizar cómo varían estas frecuencias a lo largo de las contracciones
 simuladas. 
+
+
+Como se observa en la grafica de segmentos de contracción extraidos, las contracciones están sobrepuestas, y tiene todo el sentido debido a que la señal EMG que se está anamizando, es una señal simulada y generada por un generador de señales lo cual indica que al segmentar la señal en las cinco contracciones y compararlas son parecidas.
+
 
 PARTE B – Captura de la señal de paciente
 a) Colocar los electrodos sobre el grupo muscular definido por el grupo (por
