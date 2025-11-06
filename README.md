@@ -297,7 +297,7 @@ f) Analizar cómo varían estas frecuencias a lo largo de las contracciones
 simuladas. 
 
 
-Como se observa en la grafica de segmentos de contracción extraidos, las contracciones están sobrepuestas, y tiene todo el sentido debido a que la señal EMG que se está anamizando, es una señal simulada y generada por un generador de señales lo cual indica que al segmentar la señal en las cinco contracciones y compararlas son parecidas.
+Como se observa en la grafica de segmentos de contracción extraidos, las contracciones están sobrepuestas, y tiene todo el sentido debido a que la señal EMG que se está analizando, es una señal simulada y generada por un generador de señales lo cual indica que al segmentar la señal en las cinco contracciones y compararlas son parecidas.
 
 
 PARTE B – Captura de la señal de paciente
