@@ -336,10 +336,53 @@ El grupo muscular seleccionado fue el biceps, a continuación se adjuntan imáge
 
 b) Registrar la señal EMG de un paciente o voluntario sano realizando
 contracciones repetidas hasta la fatiga (o la falla).
+```
+import numpy as np  
+import nidaqmx
+from nidaqmx.constants import AcquisitionType, READ_ALL_AVAILABLE
+import matplotlib.pyplot as plt
+from scipy.signal import butter, filtfilt
+
+rate = 2000.0  # Hz
+duration = 6  # segundos
+
+samps_per_chan = int(rate * duration)
+corte_alto = 500 #hz
+corte_bajo = 20 #hz
+corte_altorad = corte_alto * 2 * np.pi
+corte_bajorad = corte_bajo * 2 * np.pi
+w2=corte_bajorad/rate
+w1=corte_altorad/rate
+N = (2*np.pi*4)/w2-w1
+print(w1)
+print(w2)
+print(N)
+b = np.loadtxt('C:/Users/USUARIO/Downloads/coeflab4.txt', delimiter=',')
+a = np.array([1])  # porque es un filtro FIR (Hamming)
 
 
+
+with nidaqmx.Task() as task:
+    task.ai_channels.add_ai_voltage_chan("Dev1/ai0")
+    task.timing.cfg_samp_clk_timing(rate, sample_mode=AcquisitionType.FINITE, samps_per_chan=samps_per_chan)
+    data = task.read(READ_ALL_AVAILABLE)
+    #offset = 10
+    data = np.array(data)
+    data_filtrada = filtfilt(b, a, data)
+    #dataoffset = data+offset
+    plt.figure(figsize=(15, 3))
+    plt.plot(data_filtrada)
+    plt.ylabel('Amplitud')
+    #plt.ylim(-1, 1)
+    plt.title('señal emg')  
+    plt.show()
+
+
+np.savetxt(r"C:\Users\USUARIO\OneDrive\Desktop\DATOSPARTEBEMGintentofinal.csv", data_filtrada, delimiter=",")
+```
 
 c) Aplicar un filtro pasa banda (20–450 Hz) para eliminar ruido y artefactos.
+
 
 Para este caso, se utilizó el mismo filtro que ya se habia diseñado en la parte A para la captura de la señal EMG del generador de señales biológicas,
 
