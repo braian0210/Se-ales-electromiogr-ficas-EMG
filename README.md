@@ -251,6 +251,21 @@ print(f"Frecuencia media promedio: {np.mean(freq_means):.2f} Hz")
 print(f"Frecuencia mediana promedio: {np.mean(freq_medians):.2f} Hz")
 print(f"Desviación estándar frecuencia media: {np.std(freq_means):.2f} Hz")
 
+# **Evolución de las frecuencias por contracción**
+plt.figure(figsize=(10, 5))
+
+# Gráfico de evolución de la frecuencia media
+plt.plot(range(1, len(freq_means) + 1), freq_means, 'o-', label='Frecuencia media (Hz)')
+plt.plot(range(1, len(freq_medians) + 1), freq_medians, 's--', label='Frecuencia mediana (Hz)')
+
+plt.title('Evolución de la frecuencia media y mediana por contracción')
+plt.xlabel('Número de contracción')
+plt.ylabel('Frecuencia (Hz)')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
 ```
 
 
@@ -293,6 +308,10 @@ Desviación estándar frecuencia media: 0.05 Hz
 ```
 
 
+<img width="989" height="490" alt="image" src="https://github.com/user-attachments/assets/25e8cfce-482f-4d44-a509-bbaedfbc807a" />
+
+
+
 f) Analizar cómo varían estas frecuencias a lo largo de las contracciones
 simuladas. 
 
@@ -301,13 +320,29 @@ Como se observa en la grafica de segmentos de contracción extraidos, las contra
 
 
 PARTE B – Captura de la señal de paciente
+
 a) Colocar los electrodos sobre el grupo muscular definido por el grupo (por
 ejemplo, antebrazo o bíceps).
+
+El grupo muscular seleccionado fue el biceps, a continuación se adjuntan imágenes del posicionamiento de los electrodos para la captura de la señal EMG.
+
+
+![Imagen de WhatsApp 2025-11-05 a las 21 40 05_a93ce64a](https://github.com/user-attachments/assets/eaa074d9-1387-425d-b9e2-e5cae47e04a1)
+
+
+![Imagen de WhatsApp 2025-11-05 a las 21 40 05_cb674ad4](https://github.com/user-attachments/assets/036171b4-466e-4b51-90d7-f00b965cfa01)
+
+
 
 b) Registrar la señal EMG de un paciente o voluntario sano realizando
 contracciones repetidas hasta la fatiga (o la falla).
 
+
+
 c) Aplicar un filtro pasa banda (20–450 Hz) para eliminar ruido y artefactos.
+
+Para este caso, se utilizó el mismo filtro que ya se habia diseñado en la parte A para la captura de la señal EMG del generador de señales biológicas,
+
 
 d) Dividir la señal en el número de contracciones realizadas
 
