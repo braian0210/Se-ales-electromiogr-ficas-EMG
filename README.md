@@ -603,7 +603,7 @@ A continuación se presenta el siguiente codigo que se utilizó para dar soluci�
 
 PARTE C – Análisis espectral mediante FFT
 
-A continuación se presenta el siguiente codigo que se utilizó para dar solución a todos los items que exigía la parte C de esta práctica de laboratorio.
+A continuación se presenta el siguiente código que se utilizó para dar solución a todos los items que exigía la parte C de esta práctica de laboratorio.
 
 ```
 import numpy as np
