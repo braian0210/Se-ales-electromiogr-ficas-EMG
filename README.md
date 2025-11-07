@@ -600,6 +600,43 @@ muscular.
 no se pudo identificar informacion importante para identificar fatiga muscular durante el examen, debido a el corto tiempo de el examen, la ausencia de peso durante, por eso es que no se ven desplazamientos significativos de los espectros de cada contraccion, sin embargo podemos asumir que el musculo ya estaba con fatiga por las multiples contracciones y ejercicios que se realizaron antes de la toma de los datos, pues con cada ajuste de parametros y captura se seguia realizando contracciones continuamente hasta que llego el punto donde obtuvimos señales de la forma en que se graficaron donde se ve mayor actividad muscular
 A continuación se presenta el siguiente codigo que se utilizó para dar solución a todos los items que exigía la parte C de esta práctica de laboratorio.
 
+```
+# --- Cálculo y gráfica del RMS por contracción ---
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Calcular RMS (Root Mean Square) para cada contracción
+rms_values = []
+for seg in segments:
+    if len(seg) == 0:
+        rms_values.append(0.0)
+    else:
+        rms = np.sqrt(np.mean(np.square(seg)))
+        rms_values.append(rms)
+
+# Crear etiquetas para cada contracción
+labels = [f'C{i+1}' for i in range(len(rms_values))]
+
+# Graficar RMS en un diagrama de barras
+plt.figure(figsize=(8,5))
+bars = plt.bar(labels, rms_values, color='steelblue', alpha=0.8)
+
+# Añadir los valores numéricos encima de cada barra
+for bar in bars:
+    h = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, h + 0.002, f"{h:.4f}",
+             ha='center', va='bottom', fontsize=9)
+
+# Estética de la gráfica
+plt.title('RMS por Contracción (Amplitud EMG)')
+plt.xlabel('Contracción')
+plt.ylabel('RMS (V)')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+```
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/7b24583a-5775-4f94-b8bf-943009e43b36" />
 
 PARTE C – Análisis espectral mediante FFT
 
