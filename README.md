@@ -602,19 +602,264 @@ muscular.
 
 PARTE C – Análisis espectral mediante FFT
 
+A continuación se presenta el siguiente codigo que se utilizó para dar solución a todos los items que exigía la parte C de esta práctica de laboratorio.
+
+```
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from scipy.fft import fft, fftfreq
+
+# ==========================
+# CARGAR DATOS
+# ==========================
+data = np.loadtxt('/content/drive/Shareddrives/Labs procesamiento de señales/lab 4/DATOSPARTEBEMGintentofinal.csv')
+
+# ==========================
+# DETECTAR PICOS POSITIVOS
+# ==========================
+positive_data = data.copy()
+positive_data[positive_data < 0] = 0  # solo valores positivos
+
+threshold = 0.63 * np.max(positive_data)
+peaks, properties = find_peaks(positive_data, height=threshold, distance=100)
+
+print(f"\nNúmero de picos positivos encontrados: {len(peaks)}")
+
+# ==========================
+# SEGMENTAR CADA CONTRACCIÓN
+# ==========================
+window_size = 200  # ajustar según la duración típica
+segments = []
+for peak in peaks:
+    start = max(0, peak - window_size)
+    end = min(len(data), peak + window_size)
+    segments.append(data[start:end])
+
+sampling_rate = 2000  # Hz
+
+# ==========================
+# FFT Y ANÁLISIS DE CADA CONTRACCIÓN
+# ==========================
+freq_means = []
+freq_medians = []
+
+num_contracciones = len(segments)
+
+# Crear una figura con subplots bien distribuidos
+fig, axs = plt.subplots(num_contracciones, 1, figsize=(10, 3*num_contracciones))
+if num_contracciones == 1:
+    axs = [axs]  # por si solo hay una contracción
+
+for i, segment in enumerate(segments):
+    N = len(segment)
+    if N == 0:
+        continue
+
+    T = 1 / sampling_rate
+    yf = fft(segment)
+    xf = fftfreq(N, T)[:N//2]
+    psd = np.abs(yf[:N//2])**2
+
+    # Filtrar DC
+    mask = xf > 0
+    xf_filtered = xf[mask]
+    psd_filtered = psd[mask]
+
+    # Frecuencia media y mediana
+    mean_freq = np.sum(xf_filtered * psd_filtered) / np.sum(psd_filtered)
+    cumsum_psd = np.cumsum(psd_filtered)
+    median_idx = np.where(cumsum_psd >= cumsum_psd[-1] / 2)[0]
+    median_freq = xf_filtered[median_idx[0]] if len(median_idx) > 0 else 0
+
+    freq_means.append(mean_freq)
+    freq_medians.append(median_freq)
+
+    # Graficar cada espectro
+    axs[i].plot(xf_filtered, psd_filtered, label=f'Contracción {i+1}', color='blue')
+    axs[i].axvline(mean_freq, color='r', linestyle='--', label=f'Media: {mean_freq:.2f} Hz')
+    axs[i].axvline(median_freq, color='g', linestyle='--', label=f'Mediana: {median_freq:.2f} Hz')
+    axs[i].set_title(f'Espectro de Frecuencia - Contracción {i+1}')
+    axs[i].set_xlabel('Frecuencia (Hz)')
+    axs[i].set_ylabel('Potencia (u.a.)')
+    axs[i].legend(loc='upper right')
+    axs[i].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# ==========================
+# RESULTADOS NUMÉRICOS
+# ==========================
+print("\n" + "="*60)
+print("RESULTADOS DE ANÁLISIS DE FRECUENCIA POR CONTRACCIÓN")
+print("="*60)
+for i, (mean_f, median_f) in enumerate(zip(freq_means, freq_medians)):
+    print(f"Contracción {i+1}:")
+    print(f"  • Frecuencia media = {mean_f:.2f} Hz")
+    print(f"  • Frecuencia mediana = {median_f:.2f} Hz")
+    print(f"  • Duración = {len(segments[i])/sampling_rate*1000:.1f} ms")
+    print()
+    # ===========================================
+# GRAFICAR ESPECTRO DE AMPLITUD Y COMPARAR INICIALES VS FINALES
+# ===========================================
+
+# Calcular espectro de amplitud (no potencia) para comparación visual
+plt.figure(figsize=(12, 6))
+
+# Seleccionar primeras y últimas contracciones (por ejemplo 1-2 vs 6-7)
+primeras = segments[:2]
+ultimas = segments[-2:]
+
+# --- Graficar espectros de las primeras contracciones ---
+for i, segment in enumerate(primeras):
+    N = len(segment)
+    T = 1 / sampling_rate
+    yf = fft(segment)
+    xf = fftfreq(N, T)[:N//2]
+    amplitude_spectrum = np.abs(yf[:N//2]) / N  # espectro de amplitud normalizado
+    plt.plot(xf, amplitude_spectrum, label=f'Contracción inicial {i+1}')
+
+# --- Graficar espectros de las últimas contracciones ---
+for i, segment in enumerate(ultimas):
+    N = len(segment)
+    T = 1 / sampling_rate
+    yf = fft(segment)
+    xf = fftfreq(N, T)[:N//2]
+    amplitude_spectrum = np.abs(yf[:N//2]) / N
+    plt.plot(xf, amplitude_spectrum, linestyle='--', label=f'Contracción final {len(segments)-1+i}')
+
+plt.title('Comparación de Espectros de Amplitud: Primeras vs Últimas Contracciones')
+plt.xlabel('Frecuencia (Hz)')
+plt.ylabel('Amplitud (u.a.)')
+plt.legend()
+plt.grid(True)
+plt.xlim(0, 500)  # limitar eje de frecuencia para ver zona útil
+plt.show()
+# ===========================================
+# ANÁLISIS DE FATIGA MUSCULAR
+# ===========================================
+
+high_freq_band = (80, 150)  # rango típico de altas frecuencias en EMG
+peak_freqs = []
+high_freq_energy = []
+
+for i, segment in enumerate(segments):
+    N = len(segment)
+    T = 1 / sampling_rate
+    yf = fft(segment)
+    xf = fftfreq(N, T)[:N//2]
+    amplitude_spectrum = np.abs(yf[:N//2]) / N
+
+    # --- Calcular frecuencia del pico espectral (máxima amplitud) ---
+    peak_idx = np.argmax(amplitude_spectrum)
+    peak_freq = xf[peak_idx]
+    peak_freqs.append(peak_freq)
+
+    # --- Calcular energía en banda alta (80–150 Hz) ---
+    mask_high = (xf >= high_freq_band[0]) & (xf <= high_freq_band[1])
+    high_energy = np.sum(amplitude_spectrum[mask_high])
+    high_freq_energy.append(high_energy)
+
+# ===========================================
+# MOSTRAR RESULTADOS
+# ===========================================
+print("\n" + "="*65)
+print("ANÁLISIS DE FATIGA MUSCULAR")
+print("="*65)
+for i, (pf, hf) in enumerate(zip(peak_freqs, high_freq_energy)):
+    print(f"Contracción {i+1}:")
+    print(f"  • Frecuencia pico = {pf:.2f} Hz")
+    print(f"  • Energía en banda alta (80–150 Hz) = {hf:.4f}")
+    print()
+
+# ===========================================
+# VISUALIZAR TENDENCIA DE FATIGA
+# ===========================================
+plt.figure(figsize=(10,5))
+plt.subplot(2,1,1)
+plt.plot(range(1, len(segments)+1), high_freq_energy, 'o-', color='tab:red')
+plt.title('Reducción del contenido de alta frecuencia (80–150 Hz)')
+plt.xlabel('Número de Contracción')
+plt.ylabel('Energía relativa (u.a.)')
+plt.grid(True)
+
+plt.subplot(2,1,2)
+plt.plot(range(1, len(segments)+1), peak_freqs, 'o-', color='tab:blue')
+plt.title('Desplazamiento del pico espectral')
+plt.xlabel('Número de Contracción')
+plt.ylabel('Frecuencia pico (Hz)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+
+
+```
+
 a) Aplicar la Transformada Rápida de Fourier (FFT) a cada contracción de la
 señal EMG real.
+
+
+<img width="989" height="2090" alt="image" src="https://github.com/user-attachments/assets/b99e5783-992b-4286-9c78-afe0e03f3593" />
+
 
 b) Graficar el espectro de amplitud (frecuencia vs. magnitud) para observar
 cómo cambia el contenido de frecuencia.
 
+
+<img width="989" height="590" alt="image" src="https://github.com/user-attachments/assets/64d81ffa-b960-4c31-9df8-059975648fb7" />
+
+
+
 c) Comparar los espectros de las primeras contracciones con los de las últimas.
+
+
+<img width="1023" height="550" alt="image" src="https://github.com/user-attachments/assets/2ed55359-f7ec-4675-babf-ea30a979ac59" />
+
 
 d) Identificar la reducción del contenido de alta frecuencia asociada con la fatiga
 muscular.
 
+```
+=================================================================
+ANÁLISIS DE FATIGA MUSCULAR
+=================================================================
+Contracción 1:
+  • Frecuencia pico = 40.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0952
+
+Contracción 2:
+  • Frecuencia pico = 40.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0963
+
+Contracción 3:
+  • Frecuencia pico = 40.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0846
+
+Contracción 4:
+  • Frecuencia pico = 35.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0854
+
+Contracción 5:
+  • Frecuencia pico = 30.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0829
+
+Contracción 6:
+  • Frecuencia pico = 35.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0945
+
+Contracción 7:
+  • Frecuencia pico = 30.00 Hz
+  • Energía en banda alta (80–150 Hz) = 0.0764
+```
+
 e) Calcular y discutir el desplazamiento del pico espectral y su relación con el
 esfuerzo sostenido.
+
+<img width="819" height="404" alt="image" src="https://github.com/user-attachments/assets/50e57081-a194-4607-94bb-2c80d3fccec4" />
+
 
 f) Redactar conclusiones sobre el uso del análisis espectral como herramienta
 diagnóstica en electromiografía. 
