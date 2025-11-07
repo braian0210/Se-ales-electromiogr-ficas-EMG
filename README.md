@@ -597,7 +597,8 @@ plt.show()
 
 g) Discutir la relación entre los cambios de frecuencia y la fisiología de la fatiga
 muscular. 
-
+no se pudo identificar informacion importante para identificar fatiga muscular durante el examen, debido a el corto tiempo de el examen, la ausencia de peso durante, por eso es que no se ven desplazamientos significativos de los espectros de cada contraccion, sin embargo podemos asumir que el musculo ya estaba con fatiga por las multiples contracciones y ejercicios que se realizaron antes de la toma de los datos, pues con cada ajuste de parametros y captura se seguia realizando contracciones continuamente hasta que llego el punto donde obtuvimos señales de la forma en que se graficaron donde se ve mayor actividad muscular
+A continuación se presenta el siguiente codigo que se utilizó para dar solución a todos los items que exigía la parte C de esta práctica de laboratorio.
 
 
 PARTE C – Análisis espectral mediante FFT
