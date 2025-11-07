@@ -14,11 +14,15 @@ de frecuencia media y mediana.
  Emplear herramientas computacionales para el procesamiento, segmentación y
 análisis de señales biomédicas.
 
-Resumen : Para este laboratorio, se nos solicita utilizar la técnica de EMG para registrar la señal de fatiga muscular en el brazo, para esto es importante tener conocimientos previos como:
+Introducción : Para este laboratorio, se nos solicita utilizar la técnica de EMG para registrar la señal de fatiga muscular en el brazo, para esto es importante tener conocimientos previos como:
 
 Palabras claves:
 - EMG:electromiografía
-- Musculo esqueletico:Musculo que se une a los huesos y permiten los movimientos voluntarios. Se dividen en musculoes estriados y no estriados por sus características 
+- Musculo esqueletico: Musculo que se une a los huesos y permiten los movimientos voluntarios. Se dividen en musculoes estriados y no estriados por sus características
+- FFT: La transformada rápida de Fourier, conocida comúnmente como FFT, es un algoritmo eficaz que posibilita el cálculo de la transformada discreta de Fourier (DFT) y su inversa.
+- RMS: Raíz cuadrada media, es la raíz cuadrada de la media aritmética de los cuadrados de los valores.
+
+  
 Adicionalmente para el desarrollo de esta guía, es necesario identificar el músculo que se desea medir y calcular la frecuencia de muestreo requerida para captar la señal. Esto implica realizar movimientos repetitivos hasta llegar a la fatiga del brazo, en nuestro caso se haran especificamente en el biceps; con los datos obtenidos, se pueden aplicar los filtros correspondientes: uno pasa alto y otro pasa bajo, con el objetivo de eliminar las frecuencias no deseadas. Para analizar estos datos, es preciso dividir la señal en ventanas temporales y luego realizar un análisis espectral de cada ventana utilizando la transformada de Fourier (FFT). De este modo, podemos observar cómo el espectro de la señal cambia a medida que se aproxima a la fatiga del músculo.
 
 
@@ -654,6 +658,9 @@ plt.show()
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/7b24583a-5775-4f94-b8bf-943009e43b36" />
 
 PARTE C – Análisis espectral mediante FFT
+
+<img width="344" height="477" alt="image" src="https://github.com/user-attachments/assets/8b8620b1-cd4f-4c26-984e-6117d56460b8" />
+
 
 A continuación se presenta el siguiente código que se utilizó para dar solución a todos los items que exigía la parte C de esta práctica de laboratorio.
 
