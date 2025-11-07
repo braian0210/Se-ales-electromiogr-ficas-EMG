@@ -14,6 +14,12 @@ de frecuencia media y mediana.
  Emplear herramientas computacionales para el procesamiento, segmentación y
 análisis de señales biomédicas.
 
+Resumen : Para este laboratorio, se nos solicita utilizar la técnica de EMG para registrar la señal de fatiga muscular en el brazo, para esto es importante tener conocimientos previos como:
+
+Palabras claves:
+- EMG:electromiografía
+- Musculo esqueletico:Musculo que se une a los huesos y permiten los movimientos voluntarios. Se dividen en musculoes estriados y no estriados por sus características 
+
 PARTE A – Captura de la señal emulada
 
 ![Imagen de WhatsApp 2025-11-06 a las 21 28 06_60e144b8](https://github.com/user-attachments/assets/a230cb08-2396-45c8-b2f7-e7b6f7e51942)
