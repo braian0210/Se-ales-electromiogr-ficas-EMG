@@ -336,6 +336,8 @@ El grupo muscular seleccionado fue el biceps, a continuación se adjuntan imáge
 
 b) Registrar la señal EMG de un paciente o voluntario sano realizando
 contracciones repetidas hasta la fatiga (o la falla).
+c) Aplicar un filtro pasa banda (20–450 Hz) para eliminar ruido y artefactos.
+Para este caso, se utilizó el mismo filtro que ya se habia diseñado en la parte A para la captura de la señal EMG del generador de señales biológicas,
 ```
 import numpy as np  
 import nidaqmx
@@ -381,13 +383,70 @@ with nidaqmx.Task() as task:
 np.savetxt(r"C:\Users\USUARIO\OneDrive\Desktop\DATOSPARTEBEMGintentofinal.csv", data_filtrada, delimiter=",")
 ```
 
-c) Aplicar un filtro pasa banda (20–450 Hz) para eliminar ruido y artefactos.
-
-
-Para este caso, se utilizó el mismo filtro que ya se habia diseñado en la parte A para la captura de la señal EMG del generador de señales biológicas,
-
-
 d) Dividir la señal en el número de contracciones realizadas
+```
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from scipy.fft import fft, fftfreq
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.cm as cm
+
+filepath = '/content/drive/Shareddrives/Labs procesamiento de señales/lab 4/DATOSPARTEBEMGintentofinal.csv'
+sampling_rate = 2000  # Hz
+threshold_factor = 0.50   # comparacion con el máximo positivo que consideramos "umbral"
+window_ms_group = 900  # ventana fija para agrupar picos en ms (cada ventana es 1 contracción maxima)
+segment_ms = 800         # ancho (antes+después) para extraer segmentos alrededor del pico 
+
+# Cargar datos
+data = np.loadtxt(filepath)
+
+# Considerar solo parte positiva para detección de picos
+positive_data = data.copy()
+positive_data[positive_data < 0] = 0
+
+# Umbral relativo al máximo positivo (ajustable)
+threshold = threshold_factor * np.max(positive_data)
+
+# Encontrar todos los picos con un umbral relativamente bajo (para no perder picos pequeños)
+all_peaks, all_props = find_peaks(positive_data, height=threshold/2, distance=10)  # distance pequeña solo para limpieza
+# (usamos un umbral algo bajo aquí porque luego dentro de la ventana elegimos el pico más alto)
+
+# Agrupar por ventanas de tiempo fijas y seleccionar el pico más alto por ventana
+samples_per_group = max(1, int(window_ms_group * sampling_rate / 1000))
+selected_peaks = []
+
+start = 0
+n = len(data)
+while start < n:
+    end = min(start + samples_per_group, n)
+    # picos dentro de esta ventana (indices relativos a la señal completa)
+    mask = (all_peaks >= start) & (all_peaks < end)
+    peaks_in_win = all_peaks[mask]
+    if peaks_in_win.size > 0:
+        heights = positive_data[peaks_in_win]
+        # escoger el pico con mayor altura dentro de la ventana
+        chosen_idx = np.argmax(heights)
+        selected_peaks.append(peaks_in_win[chosen_idx])
+    start += samples_per_group
+
+selected_peaks = np.array(selected_peaks, dtype=int)
+
+print(f"Total picos detectados (preliminar): {len(all_peaks)}")
+print(f"Picos seleccionados (1 por ventana de {window_ms_group} ms): {len(selected_peaks)}")
+print("Posiciones de picos seleccionados:", selected_peaks)
+
+# Extraer segmentos alrededor de cada pico seleccionado
+half_segment_samples = max(1, int(segment_ms * sampling_rate / 1000))
+segments = []
+for peak in selected_peaks:
+    s = max(0, peak - half_segment_samples)
+    e = min(n, peak + half_segment_samples)
+    segments.append(data[s:e])
+
+print(f"Segmentos extraídos: {len(segments)}")
+```
+<img width="1390" height="790" alt="image" src="https://github.com/user-attachments/assets/794a8762-c3d0-494b-8fad-bfa92cb72bb8" />
 
 e.) Calcular para cada contracción:
 
@@ -395,8 +454,144 @@ e.) Calcular para cada contracción:
 
  Frecuencia mediana
 
+```
+freq_means = []
+freq_medians = []
+
+for i, segment in enumerate(segments):
+    N = len(segment)
+    if N == 0:
+        freq_means.append(0)
+        freq_medians.append(0)
+        continue
+
+    T = 1 / sampling_rate
+    yf = fft(segment)
+    xf = fftfreq(N, T)[:N//2]
+    psd = np.abs(yf[:N//2])**2
+
+    mask = xf > 0
+    xf_filtered = xf[mask]
+    psd_filtered = psd[mask]
+
+    if len(xf_filtered) == 0 or np.sum(psd_filtered) == 0:
+        freq_means.append(0)
+        freq_medians.append(0)
+        continue
+
+    mean_freq = np.sum(xf_filtered * psd_filtered) / np.sum(psd_filtered)
+    cumsum_psd = np.cumsum(psd_filtered)
+    median_idx = np.where(cumsum_psd >= cumsum_psd[-1] / 2)[0]
+    median_freq = xf_filtered[median_idx[0]] if len(median_idx) > 0 else 0
+
+    freq_means.append(mean_freq)
+    freq_medians.append(median_freq)
+```
+<img width="488" height="657" alt="image" src="https://github.com/user-attachments/assets/b3e10909-a3d7-46fe-9346-d2c3c8a4e8c5" />
+
+
+
 f) Graficar los resultados obtenidos y analizar la tendencia de la frecuencia
 media y mediana a medida que progresa la fatiga muscular.
+```
+plt.figure(figsize=(14, 8))
+
+# Señal completa + umbral + todos los picos preliminares (pequeños) + picos seleccionados (grandes)
+plt.subplot(2, 1, 1)
+plt.plot(data, label='Señal EMG completa', alpha=0.7)
+plt.axhline(y=threshold, color='r', linestyle='--', label='Umbral (threshold_factor * max positivo)')
+# marcar picos preliminares con puntos pequeños y semitransparentes
+plt.plot(all_peaks, data[all_peaks], 'k.', markersize=4, alpha=0.3, label='Picos preliminares')
+# marcar picos seleccionados (1 por ventana) con rojos grandes
+plt.plot(selected_peaks, data[selected_peaks], 'ro', markersize=8, label='Picos seleccionados (1/ventana)')
+# Dibujar división de ventanas para que veas cómo se agrupan
+for x in range(0, n, samples_per_group):
+    plt.axvline(x=x, color='gray', alpha=0.15)
+
+plt.xlabel('Muestras')
+plt.ylabel('Amplitud (V)')
+plt.legend()
+plt.title('Detección de picos: 1 pico máximo por ventana fija')
+plt.grid(True)
+
+# Segmentos individuales (tiempo en ms)
+plt.subplot(2, 1, 2)
+for i, segment in enumerate(segments):
+    time_axis = np.arange(len(segment)) / sampling_rate * 1000  # ms
+    plt.plot(time_axis, segment, label=f'Contracción {i+1}')
+plt.xlabel('Tiempo (ms)')
+plt.ylabel('Amplitud (V)')
+plt.legend()
+plt.title('Segmentos de contracción extraídos (alrededor del pico seleccionado)')
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# ----- Resultados -----
+print("\n" + "="*60)
+print("RESULTADOS DE ANÁLISIS DE FRECUENCIA POR CONTRACCIÓN")
+print("="*60)
+for i, (mean_f, median_f) in enumerate(zip(freq_means, freq_medians)):
+    dur_ms = len(segments[i]) / sampling_rate * 1000 if len(segments[i]) > 0 else 0
+    print(f"Contracción {i+1}:")
+    print(f"  • Frecuencia media = {mean_f:.2f} Hz")
+    print(f"  • Frecuencia mediana = {median_f:.2f} Hz")
+    print(f"  • Duración = {dur_ms:.1f} ms")
+    print()
+
+print("ESTADÍSTICAS GENERALES:")
+print(f"Frecuencia media promedio: {np.mean(freq_means):.2f} Hz")
+print(f"Frecuencia mediana promedio: {np.mean(freq_medians):.2f} Hz")
+print(f"Desviación estándar frecuencia media: {np.std(freq_means):.2f} Hz")
+
+
+fig = plt.figure(figsize=(12,8))
+ax3 = fig.add_subplot(111, projection='3d')
+
+# Parámetros de separación y escala
+n_segments = len(segments)
+separation = 1.0                    # separación entre "capas" en el eje Y
+amplitude_scale = 1.0               # escala global de amplitud (ajustar si es necesario)
+cm_map = cm.get_cmap('viridis', max(2, n_segments))
+
+for i, segment in enumerate(segments):
+    N = len(segment)
+    if N == 0:
+        continue
+    # eje X: tiempo relativo en ms
+    x = np.arange(N) / sampling_rate * 1000.0
+    # eje Y: colocar cada contracción en su "capa" usando su frecuencia media si disponible,
+    # sino usar el índice para separarlas de forma uniforme
+    if i < len(freq_means) and freq_means[i] > 0:
+        y_level = freq_means[i]  # posicionar por frecuencia media (Hz)
+    else:
+        y_level = i * separation  # fallback por índice
+
+    # crear arrays 3D: y constante para toda la curva, z = amplitud
+    y = np.full_like(x, fill_value=y_level, dtype=float)
+    z = segment * amplitude_scale
+
+    # Trazo principal (línea) y sombreado ligero con transparencia
+    ax3.plot(x, y, z, linewidth=2.2, color=cm_map(i), label=f'Contracción {i+1}' if i<10 else None)
+    ax3.plot(x, y, z, linewidth=6, alpha=0.06, color='k')  # halo tenue para mejor contraste
+
+    # marcar el pico seleccionado dentro del segmento (posición 0 corresponde al inicio del segmento)
+    # buscar el índice del valor máximo dentro del segmento y representarlo
+    peak_idx = np.argmax(np.abs(z))
+    ax3.scatter(x[peak_idx], y[peak_idx], z[peak_idx], s=30, color=cm_map(i), edgecolor='k')
+
+# Ajustes estéticos
+ax3.set_xlabel('Tiempo (ms)')
+ax3.set_ylabel('Frecuencia media (Hz) / Nivel')
+ax3.set_zlabel('Amplitud (V)')
+ax3.view_init(elev=30, azim=45)   # vista isométrica aproximada (ajustar elev/azim a tu gusto)
+ax3.grid(True)
+plt.tight_layout()
+plt.show()
+```
+
+
 
 g) Discutir la relación entre los cambios de frecuencia y la fisiología de la fatiga
 muscular. 
