@@ -907,4 +907,7 @@ esfuerzo sostenido.
 f) Redactar conclusiones sobre el uso del análisis espectral como herramienta
 diagnóstica en electromiografía. 
 
+En la práctica no se registraron cambios significativos en los espectros de frecuencia que permitieran observar la fatiga muscular, debido a que el tiempo de registro fue  corto, la aplicación del análisis espectral, en electromiografía, sigue siendo un método muy relevante.
+La aplicación del análisis espectral permite estudiar la distribución de la energía en las distintas frecuencias de la EMG, lo que permite la detección de cambios relacionados con el estado de fatiga, la coordinación neuromuscular y las alteraciones patológicas. En entornos de investigación o clínicos más controlados la aplicación del análisis espectral de la EMG permite la detección de la reducción del contenido de alta frecuencia y el desplazamiento del pico espectral hacia valores menores; fenómenos que son típicos de la fatiga muscular. Por lo que su aplicación puede ser un recurso a seguir como herramientas diagnósticas de las funciones de la función muscular, de la eficiencia del control motor o del estado del sistema neuromuscular.
+
 
