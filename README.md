@@ -333,6 +333,9 @@ Como se observa en la grafica de segmentos de contracción extraidos, las contra
 
 PARTE B – Captura de la señal de paciente
 
+<img width="420" height="549" alt="image" src="https://github.com/user-attachments/assets/e1c0316e-edaa-4525-a585-3eab68db196c" />
+
+
 a) Colocar los electrodos sobre el grupo muscular definido por el grupo (por
 ejemplo, antebrazo o bíceps).
 
