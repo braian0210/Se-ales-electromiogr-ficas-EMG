@@ -16,6 +16,9 @@ análisis de señales biomédicas.
 
 PARTE A – Captura de la señal emulada
 
+![Imagen de WhatsApp 2025-11-06 a las 21 28 06_60e144b8](https://github.com/user-attachments/assets/a230cb08-2396-45c8-b2f7-e7b6f7e51942)
+
+
 a) Configurar el generador de señales biológicas en modo EMG, simulando
 aproximadamente cinco contracciones musculares voluntarias.
 
