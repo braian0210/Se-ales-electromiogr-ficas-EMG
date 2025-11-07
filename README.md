@@ -591,10 +591,14 @@ plt.tight_layout()
 plt.show()
 ```
 
+<img width="983" height="790" alt="image" src="https://github.com/user-attachments/assets/b5b91d2b-3a1f-4217-a288-5467247b8f39" />
+
 
 
 g) Discutir la relación entre los cambios de frecuencia y la fisiología de la fatiga
 muscular. 
+
+
 
 PARTE C – Análisis espectral mediante FFT
 
