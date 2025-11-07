@@ -801,17 +801,13 @@ plt.show()
 a) Aplicar la Transformada Rápida de Fourier (FFT) a cada contracción de la
 señal EMG real.
 
+La FFT se utiliza para transformar la señal EMG del dominio del tiempo al dominio de la frecuencia para estudiar la distribución de la energía de la señal en distintas frecuencias durante cada contracción muscular. 
 
 <img width="989" height="2090" alt="image" src="https://github.com/user-attachments/assets/b99e5783-992b-4286-9c78-afe0e03f3593" />
 
 
 b) Graficar el espectro de amplitud (frecuencia vs. magnitud) para observar
 cómo cambia el contenido de frecuencia.
-
-
-<img width="989" height="590" alt="image" src="https://github.com/user-attachments/assets/64d81ffa-b960-4c31-9df8-059975648fb7" />
-
-
 
 c) Comparar los espectros de las primeras contracciones con los de las últimas.
 
