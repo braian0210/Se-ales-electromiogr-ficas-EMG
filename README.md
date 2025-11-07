@@ -19,6 +19,9 @@ Resumen : Para este laboratorio, se nos solicita utilizar la técnica de EMG par
 Palabras claves:
 - EMG:electromiografía
 - Musculo esqueletico:Musculo que se une a los huesos y permiten los movimientos voluntarios. Se dividen en musculoes estriados y no estriados por sus características 
+Adicionalmente para el desarrollo de esta guía, es necesario identificar el músculo que se desea medir y calcular la frecuencia de muestreo requerida para captar la señal. Esto implica realizar movimientos repetitivos hasta llegar a la fatiga del brazo, en nuestro caso se haran especificamente en el biceps; con los datos obtenidos, se pueden aplicar los filtros correspondientes: uno pasa alto y otro pasa bajo, con el objetivo de eliminar las frecuencias no deseadas. Para analizar estos datos, es preciso dividir la señal en ventanas temporales y luego realizar un análisis espectral de cada ventana utilizando la transformada de Fourier (FFT). De este modo, podemos observar cómo el espectro de la señal cambia a medida que se aproxima a la fatiga del músculo.
+
+
 
 PARTE A – Captura de la señal emulada
 
